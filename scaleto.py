@@ -11,7 +11,8 @@ def gprint( text ):
 # Export the file to the location given by the prefix
 # Doesn't check 
 def exportfile(prefix, image):
-	outfile = "P:\\Online_Presence\\img\\products\\"+prefix+"\\"+prefix+"_"+os.path.basename(pdb.gimp_image_get_filename(image))
+	websafename=(os.path.basename(pdb.gimp_image_get_filename(image))).replace(" ","_")
+	outfile = "P:\\Online_Presence\\img\\products\\"+prefix+"\\"+prefix+"_"+websafename
 	#For debugging in console: outfile = "P:\\Online_Presence\\img\\products\\tst\\tst_"+os.path.basename(pdb.gimp_image_get_filename(gimp.image_list()[0]))
 	pdb.file_jpeg_save(
 		#RUN_NONINTERACTIVE, #run-mode
@@ -87,6 +88,7 @@ def scaleto(image, drawable, int_targetprefix) :
 	else:
 		scalefactor = float(imgheight) / float(targetheight)
 	
+	pdb.gimp_image_undo_group_start(image)
 	#gprint("Scaling image...")
 	pdb.gimp_image_scale_full( image, int(round(imgwidth/scalefactor)), int(round(imgheight/scalefactor)), INTERPOLATION_LANCZOS )
 	
@@ -112,13 +114,14 @@ def scaleto(image, drawable, int_targetprefix) :
 		pdb.gimp_image_resize_to_layers(image)
 	
 	exportfile(targetprefix, image)
+	pdb.gimp_image_undo_group_end(image)
 	
 	return
 
 # This is the plugin registration function
 register(
 	"scaleto",	
-	"ScaleTo_v0.48",   
+	"ScaleTo_v0.50",   
 	"This script scales the current image to a preset size ",
 	"Robert K. Bell", 
 	"Inland Truck Centres", 
