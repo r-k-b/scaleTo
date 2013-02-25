@@ -1,20 +1,46 @@
 ﻿#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-# ScaleTo - Python-fu script
-# Author: Robert K. Bell
-# 
-# 
-#------------------ To Do -------------------------------------
-#	Watermark insertion
-#	Error checking
-#	
-#--------------------------------------------------------------
-# CHANGELOG: v059
-#	"med" prefix was being scaled to landscape aspect ratio, changed to portrait
-
+"""
+ ScaleTo - Python-fu script
+ Author: Robert K. Bell
+ Licence: ...
+ 
+ 
+------------------ To Do -------------------------------------
+	Watermark insertion
+	Error checking
+	Target filename checking
+	Why does it choke on png/gif/anything other than jpeg?
+	Verbose logging
+	
+--------------------------------------------------------------
+"""
+currentversion = "v065"
+"""
+CHANGELOG: 
+v065
+	gimp_file_load_layers() always returns nested tuples, duh
+v064
+	Fix log file path
+v064
+	Fixed compile errors
+	Made option names less cryptic
+v063
+	First attempt at watermark insertion
+	Added file encoding declaration
+v062
+	File extensions will be changed to .jpg
+v061
+	Added currentversion variable
+v060
+	more corrections on prefix aspect ratios and dimensions
+v059
+	"med" prefix was being scaled to landscape aspect ratio, changed to portrait
+"""
 
 from gimpfu import *
-import os
+import os, logging, sys
 
 # create an output function that redirects to gimp's Error Console
 def gprint( text ):
@@ -26,6 +52,10 @@ def gprint( text ):
 def exportfile(prefix, image):
 	websafename=(os.path.basename(pdb.gimp_image_get_filename(image))).replace(" ","_")
 	
+	#this always outputs JPEG format images, change the filename to match.
+	#Assumes the image had a dot-seperated file extension.
+	websafename=".".join(websafename.split(".")[:-1])+".jpg"
+	
 	#if (prefix == 5) or (prefix == 6):
 	if (prefix == "trk") or (prefix == "trf"):
 		categoryfolder = "trucksales"
@@ -34,10 +64,11 @@ def exportfile(prefix, image):
 	else:
 		categoryfolder = "products"
 		
-	#outfile = "P:\\Online_Presence\\img\\"+categoryfolder+"\\"+prefix+"\\"+prefix+"_"+websafename
 	#For debugging in console: outfile = "P:\\Online_Presence\\img\\products\\tst\\tst_"+os.path.basename(pdb.gimp_image_get_filename(gimp.image_list()[0]))
+	#outfile = "P:\\Online_Presence\\img\\"+categoryfolder+"\\"+prefix+"\\"+prefix+"_"+websafename
 	outfile = "P:\\Online_Presence\\img\\%s\\%s\\%s_%s" % (categoryfolder, prefix, prefix, websafename)
-	#gprint(outfile)
+	logging.debug('Outpile path and file is: %s', outfile)
+	
 	pdb.file_jpeg_save(
 		#RUN_NONINTERACTIVE, #run-mode
 		image, #input image
@@ -53,44 +84,99 @@ def exportfile(prefix, image):
 		1, #baseline
 		0, #restart
 		0); #dct algorithm
-	gprint("Wrote to "+outfile)
+	#gprint("Wrote to "+outfile)
+	return
+	
+def watermark(image, targetprefix) :
+	skipwatermark = False
+	
+	# load appropriate watermark file for the size image we have
+	if targetprefix == "med":
+		watermarkfilename = "ITC_watermark_med.xcf"
+	elif targetprefix == "pop":
+		watermarkfilename = "ITC_watermark_pop.xcf"
+	elif targetprefix == "six":
+		watermarkfilename = "ITC_watermark_six.xcf"
+	elif targetprefix == "gal":
+		watermarkfilename = "ITC_watermark_gal.xcf"
+	else:
+		skipwatermark = True;
+		logging.debug('Skipping watermark process.')
+	
+	if not skipwatermark:
+		watermarkfile = "//dubb007/G Drive/Logos/Inland group/%s"%watermarkfilename
+		logging.debug('Watermark file: %s', watermarkfilename)
+		
+		try:
+			loadedimg, watermarklayerid = pdb.gimp_file_load_layers(image,watermarkfile)
+		except Exception, error:
+			gprint(error)
+			logging.error(error)
+		logging.debug("watermarklayerid is %s", watermarklayerid)
+		gprint("watermarklayerid is %s"%watermarklayerid)
+		
+		# watermark file should have only 1 layer
+		watermarklayer = gimp.Item.from_id(watermarklayerid[0])
+		logging.debug("watermarklayer is %s", watermarklayer)
+		
+		# create target layer in image
+		pdb.gimp_image_add_layer(image, watermarklayer, 0)
+		
+		# make sure watermark layer sits in the middle
+		x = (image.width - watermarklayer.width) / 2
+		y = (image.height - watermarklayer.height) / 2
+		watermarklayer.set_offsets(x, y)
+				
+		# set nice layer properties for watermark
+		# Hard Light at 3% opacity seems good, not too obvious
+		# not required - layer properties come with imported layer
+		
+		# merge layers for JPEG export
+		pdb.gimp_image_merge_visible_layers(image, CLIP_TO_BOTTOM_LAYER)
+		
 	return
 
 # our script
 def scaleto(image, drawable, int_targetprefix) :
+	# the log file should go to the folder that contains this script
+	os.chdir(os.path.dirname(sys.argv[0]))
+	
+	logging.basicConfig(filename='ScaleTo.log',level=logging.DEBUG,format='%(asctime)s %(levelname)s %(message)s')
+	logging.debug("Scaleto version %s started.", currentversion)
+	
 	# "thm","med","pop","six","gal","trk","trf","fly"
-	#targetprefix = "tst"
+	# targetprefix = "tst"
 	if int_targetprefix == 0: #thm
-		targetheight = 150
 		targetwidth = 150
+		targetheight = 150
 		targetprefix = "thm"
 	elif int_targetprefix == 1: #med
-		targetheight = 600
 		targetwidth = 430
+		targetheight = 600
 		targetprefix = "med"
 	elif int_targetprefix == 2: #pop
+		targetwidth = 900
 		targetheight = 1000
-		targetwidth = 700
 		targetprefix = "pop"
 	elif int_targetprefix == 3: #six
-		targetheight = 1600
-		targetwidth = 1200
+		targetwidth = 1600
+		targetheight = 1200
 		targetprefix = "six"
 	elif int_targetprefix == 4: #gal
-		targetheight = 900
 		targetwidth = 675
+		targetheight = 900
 		targetprefix = "gal"
 	elif int_targetprefix == 5: #trk
-		targetheight = 160
-		targetwidth = 120
+		targetwidth = 160
+		targetheight = 120
 		targetprefix = "trk"
 	elif int_targetprefix == 6: #trf
-		targetheight = 1024
-		targetwidth = 768
+		targetwidth = 900
+		targetheight = 900
 		targetprefix = "trf"
 	elif int_targetprefix == 7: #fly
-		targetheight = 300
-		targetwidth = 424
+		targetwidth = 300
+		targetheight = 424
 		targetprefix = "fly"
 	else:
 		gprint("int_targetprefix switch broke!")
@@ -138,15 +224,18 @@ def scaleto(image, drawable, int_targetprefix) :
 		whitelayer.resize(150,150,xoffset,yoffset)
 		pdb.gimp_image_resize_to_layers(image)
 	
-	exportfile(targetprefix, image)
-	pdb.gimp_image_undo_group_end(image)
+	watermark(image, targetprefix)
 	
+	exportfile(targetprefix, image)
+	
+	pdb.gimp_image_undo_group_end(image)
+	logging.debug("ScaleTo version %s finished", currentversion)
 	return
 
 # This is the plugin registration function
 register(
 	"scaleto",	#name
-	"ScaleTo_v0.50", #blurb  
+	"ScaleTo_%s"%currentversion, #blurb  
 	"This script shrinks the current image to a preset size, then saves it to the appropriate folder", #help
 	"Robert K. Bell", #author
 	"©2012 Inland Truck Centres", #copy
@@ -154,7 +243,7 @@ register(
 	"<Image>/MyScripts/ScaleTo", #menupath
 	"*", #imagetypes
 	[
-		(PF_OPTION, "int_targetprefix", "OPTION:", 0, ["thm","med","pop","six","gal","trk","trf","fly"])
+		(PF_OPTION, "int_targetprefix", "OPTION:", 0, ["thm (Thumbnail)","med (Main store image)","pop (Poplet images)","six (eBay images)","gal (Photo Gallery images)","trk (Truck Thumbnails)","trf (Truck Pictures","fly (Flyer previews)"])
 	], 
 	[],
 	scaleto
