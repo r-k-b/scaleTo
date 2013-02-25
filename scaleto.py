@@ -5,15 +5,12 @@
  ScaleTo - Python-fu script
  Author: Robert K. Bell
  Licence: ...
- 
- 
------------------- To Do -------------------------------------
+ ------------------ To Do -------------------------------------
 	Watermark insertion
 	Error checking
 	Target filename checking
 	Why does it choke on png/gif/anything other than jpeg?
 	Verbose logging
-	
 --------------------------------------------------------------
 """
 __author__ = "Robert K. Bell"

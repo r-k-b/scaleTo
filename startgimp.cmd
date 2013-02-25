@@ -1,6 +1,14 @@
 @echo off
 title Push script to Gimp plugins folder, start Gimp
 
+rem We should pause at this point, if Gimp is still open
+tasklist | find "gimp"
+if "%ERRORLEVEL%"=="0" goto notRunning
+	echo "You should close Gimp so this works properly..."
+	pause
+
+:notRunning
+
 echo Pushing script...
 copy .\scaleto.py C:\Users\RKB\.gimp-2.8\plug-ins\
 
