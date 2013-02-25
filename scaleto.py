@@ -16,9 +16,17 @@
 	
 --------------------------------------------------------------
 """
-currentversion = "v066"
+currentversion = "v070"
 """
 CHANGELOG: 
+v070
+	Moved a misplaced comma
+v069
+	Changed source encoding from UTF8 to ANSI.
+v068
+	Added option to skip watermarking
+v067
+	Extraneous output from gprint removed.
 v066
 	Extra debug info inserted.
 v065
@@ -118,7 +126,7 @@ def watermark(image, targetprefix) :
 			gprint(error)
 			logging.error(error)
 		logging.debug("watermarklayerid is %s", watermarklayerid)
-		gprint("watermarklayerid is %s"%watermarklayerid)
+		# gprint("watermarklayerid is %s"%watermarklayerid)
 		
 		# watermark file should have only 1 layer
 		watermarklayer = gimp.Item.from_id(watermarklayerid[0])
@@ -142,7 +150,7 @@ def watermark(image, targetprefix) :
 	return
 
 # our script
-def scaleto(image, drawable, int_targetprefix) :
+def scaleto(image, drawable, int_targetprefix, AddWatermark) :
 	# the log file should go to the folder that contains this script
 	os.chdir(os.path.dirname(sys.argv[0]))
 	
@@ -232,7 +240,9 @@ def scaleto(image, drawable, int_targetprefix) :
 		whitelayer.resize(150,150,xoffset,yoffset)
 		pdb.gimp_image_resize_to_layers(image)
 	
-	watermark(image, targetprefix)
+	if AddWatermark==TRUE:
+		watermark(image, targetprefix)
+		# There's logic inside watermark() that will avoid watermarking certain target image types (thm, trk, trf.
 	
 	exportfile(targetprefix, image)
 	
@@ -251,7 +261,8 @@ register(
 	"<Image>/MyScripts/ScaleTo", #menupath
 	"*", #imagetypes
 	[
-		(PF_OPTION, "int_targetprefix", "OPTION:", 0, ["thm (Thumbnail)","med (Main store image)","pop (Poplet images)","six (eBay images)","gal (Photo Gallery images)","trk (Truck Thumbnails)","trf (Truck Pictures","fly (Flyer previews)"])
+		(PF_OPTION, "int_targetprefix", "OPTION:", 0, ["thm (Thumbnail)","med (Main store image)","pop (Poplet images)","six (eBay images)","gal (Photo Gallery images)","trk (Truck Thumbnails)","trf (Truck Pictures","fly (Flyer previews)"]),
+		(PF_TOGGLE, "AddWatermark",   "Add Watermark?", 1) # initially True, checked.  Alias PF_BOOL
 	], 
 	[],
 	scaleto
