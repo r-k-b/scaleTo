@@ -16,9 +16,11 @@
 	
 --------------------------------------------------------------
 """
-currentversion = "v065"
+currentversion = "v066"
 """
 CHANGELOG: 
+v066
+	Extra debug info inserted.
 v065
 	gimp_file_load_layers() always returns nested tuples, duh
 v064
@@ -69,7 +71,7 @@ def exportfile(prefix, image):
 	outfile = "P:\\Online_Presence\\img\\%s\\%s\\%s_%s" % (categoryfolder, prefix, prefix, websafename)
 	logging.debug('Outpile path and file is: %s', outfile)
 	
-	pdb.file_jpeg_save(
+	saveresults = pdb.file_jpeg_save(
 		#RUN_NONINTERACTIVE, #run-mode
 		image, #input image
 		pdb.gimp_image_flatten(image), #drawable to save
@@ -84,7 +86,10 @@ def exportfile(prefix, image):
 		1, #baseline
 		0, #restart
 		0); #dct algorithm
+		
 	#gprint("Wrote to "+outfile)
+	logging.debug('Save operation returned: %s', saveresults)
+	
 	return
 	
 def watermark(image, targetprefix) :
@@ -180,6 +185,8 @@ def scaleto(image, drawable, int_targetprefix) :
 		targetprefix = "fly"
 	else:
 		gprint("int_targetprefix switch broke!")
+		
+	logging.debug("Scaling image to %sx%s", targetwidth, targetheight)
 	
 	targetaspect = float(targetwidth) / float(targetheight)
 	#gprint(targetheight)
@@ -206,6 +213,7 @@ def scaleto(image, drawable, int_targetprefix) :
 	#thm prefix is a special case, it must be resized exactly to 150x150
 	#this block assumes the working image has only one layer
 	if targetprefix=="thm":
+		logging.debug('Adding fixed size white layer.')
 		thumblayer=image.layers[0]
 		whitelayer=thumblayer.copy()
 		whitelayer.name = "White Fill"
