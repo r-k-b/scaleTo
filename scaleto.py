@@ -16,9 +16,15 @@
 	
 --------------------------------------------------------------
 """
-currentversion = "v070"
+__author__ = "Robert K. Bell"
+currentversion = "v072c"
+watermarkfolder = "//dubb014/DUBB_GDRIVE/Logos/Inland group/"
 """
 CHANGELOG: 
+v072
+	watermarklayerid "referenced before assigned"
+v071
+	Watermark file was moved
 v070
 	Moved a misplaced comma
 v069
@@ -117,9 +123,8 @@ def watermark(image, targetprefix) :
 		logging.debug('Skipping watermark process.')
 	
 	if not skipwatermark:
-		watermarkfile = "//dubb007/G Drive/Logos/Inland group/%s"%watermarkfilename
+		watermarkfile = watermarkfolder + watermarkfilename
 		logging.debug('Watermark file: %s', watermarkfilename)
-		
 		try:
 			loadedimg, watermarklayerid = pdb.gimp_file_load_layers(image,watermarkfile)
 		except Exception, error:
@@ -154,7 +159,7 @@ def scaleto(image, drawable, int_targetprefix, AddWatermark) :
 	# the log file should go to the folder that contains this script
 	os.chdir(os.path.dirname(sys.argv[0]))
 	
-	logging.basicConfig(filename='ScaleTo.log',level=logging.DEBUG,format='%(asctime)s %(levelname)s %(message)s')
+	logging.basicConfig(filename='ScaleTo.log', level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s')
 	logging.debug("Scaleto version %s started.", currentversion)
 	
 	# "thm","med","pop","six","gal","trk","trf","fly"
