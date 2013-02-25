@@ -1,5 +1,18 @@
 ﻿#!/usr/bin/env python
 
+# ScaleTo - Python-fu script
+# Author: Robert K. Bell
+# 
+# 
+#------------------ To Do -------------------------------------
+#	Watermark insertion
+#	Error checking
+#	
+#--------------------------------------------------------------
+# CHANGELOG: v059
+#	"med" prefix was being scaled to landscape aspect ratio, changed to portrait
+
+
 from gimpfu import *
 import os
 
@@ -12,8 +25,19 @@ def gprint( text ):
 # Doesn't check 
 def exportfile(prefix, image):
 	websafename=(os.path.basename(pdb.gimp_image_get_filename(image))).replace(" ","_")
-	outfile = "P:\\Online_Presence\\img\\products\\"+prefix+"\\"+prefix+"_"+websafename
+	
+	#if (prefix == 5) or (prefix == 6):
+	if (prefix == "trk") or (prefix == "trf"):
+		categoryfolder = "trucksales"
+	elif prefix == "fly":
+		categoryfolder = "flyers"
+	else:
+		categoryfolder = "products"
+		
+	#outfile = "P:\\Online_Presence\\img\\"+categoryfolder+"\\"+prefix+"\\"+prefix+"_"+websafename
 	#For debugging in console: outfile = "P:\\Online_Presence\\img\\products\\tst\\tst_"+os.path.basename(pdb.gimp_image_get_filename(gimp.image_list()[0]))
+	outfile = "P:\\Online_Presence\\img\\%s\\%s\\%s_%s" % (categoryfolder, prefix, prefix, websafename)
+	#gprint(outfile)
 	pdb.file_jpeg_save(
 		#RUN_NONINTERACTIVE, #run-mode
 		image, #input image
@@ -41,8 +65,8 @@ def scaleto(image, drawable, int_targetprefix) :
 		targetwidth = 150
 		targetprefix = "thm"
 	elif int_targetprefix == 1: #med
-		targetheight = 430
-		targetwidth = 600
+		targetheight = 600
+		targetwidth = 430
 		targetprefix = "med"
 	elif int_targetprefix == 2: #pop
 		targetheight = 1000
@@ -83,14 +107,15 @@ def scaleto(image, drawable, int_targetprefix) :
 	#gprint(imgwidth)
 	#gprint(imgaspect)
 	
-	if  (imgaspect > targetaspect) :
-		scalefactor = float(imgwidth) / float(targetwidth)
-	else:
-		scalefactor = float(imgheight) / float(targetheight)
-	
 	pdb.gimp_image_undo_group_start(image)
-	#gprint("Scaling image...")
-	pdb.gimp_image_scale_full( image, int(round(imgwidth/scalefactor)), int(round(imgheight/scalefactor)), INTERPOLATION_LANCZOS )
+	if (imgheight>targetheight) or (imgwidth>targetwidth): # we only want to shrink to fit, not enlarge
+		if  (imgaspect > targetaspect) :
+			scalefactor = float(imgwidth) / float(targetwidth)
+		else:
+			scalefactor = float(imgheight) / float(targetheight)
+		
+		#gprint("Scaling image...")
+		pdb.gimp_image_scale_full( image, int(round(imgwidth/scalefactor)), int(round(imgheight/scalefactor)), INTERPOLATION_LANCZOS )
 	
 	#thm prefix is a special case, it must be resized exactly to 150x150
 	#this block assumes the working image has only one layer
@@ -120,14 +145,14 @@ def scaleto(image, drawable, int_targetprefix) :
 
 # This is the plugin registration function
 register(
-	"scaleto",	
-	"ScaleTo_v0.50",   
-	"This script scales the current image to a preset size ",
-	"Robert K. Bell", 
-	"Inland Truck Centres", 
-	"August 2012",
-	"<Image>/MyScripts/ScaleTo", 
-	"*", 
+	"scaleto",	#name
+	"ScaleTo_v0.50", #blurb  
+	"This script shrinks the current image to a preset size, then saves it to the appropriate folder", #help
+	"Robert K. Bell", #author
+	"©2012 Inland Truck Centres", #copy
+	"2012/08/24", #date
+	"<Image>/MyScripts/ScaleTo", #menupath
+	"*", #imagetypes
 	[
 		(PF_OPTION, "int_targetprefix", "OPTION:", 0, ["thm","med","pop","six","gal","trk","trf","fly"])
 	], 
