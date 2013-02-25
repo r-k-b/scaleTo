@@ -14,7 +14,7 @@
 --------------------------------------------------------------
 """
 __author__ = "Robert K. Bell"
-currentversion = "v072c"
+currentversion = "v072d"
 watermarkfolder = "//dubb014/DUBB_GDRIVE/Logos/Inland group/"
 """
 CHANGELOG: 
@@ -49,7 +49,8 @@ v061
 v060
 	more corrections on prefix aspect ratios and dimensions
 v059
-	"med" prefix was being scaled to landscape aspect ratio, changed to portrait
+	"med" prefix was being scaled to landscape aspect ratio, changed to 
+	portrait
 """
 
 from gimpfu import *
@@ -63,11 +64,16 @@ def gprint( text ):
 # Export the file to the location given by the prefix
 # Doesn't check 
 def exportfile(prefix, image):
-	websafename=(os.path.basename(pdb.gimp_image_get_filename(image))).replace(" ","_")
+	websafename = (
+		os.path.basename(
+			pdb.gimp_image_get_filename(image)
+		)
+	).replace(" ", "_")
 	
-	#this always outputs JPEG format images, change the filename to match.
-	#Assumes the image had a dot-seperated file extension.
-	websafename=".".join(websafename.split(".")[:-1])+".jpg"
+	# this always outputs JPEG format images, change the filename to match.
+	# Assumes the image had a dot-seperated file extension.
+	# TODO: add test for sane name?
+	websafename = ".".join(websafename.split(".")[:-1]) + ".jpg"
 	
 	#if (prefix == 5) or (prefix == 6):
 	if (prefix == "trk") or (prefix == "trf"):
@@ -77,26 +83,31 @@ def exportfile(prefix, image):
 	else:
 		categoryfolder = "products"
 		
-	#For debugging in console: outfile = "P:\\Online_Presence\\img\\products\\tst\\tst_"+os.path.basename(pdb.gimp_image_get_filename(gimp.image_list()[0]))
-	#outfile = "P:\\Online_Presence\\img\\"+categoryfolder+"\\"+prefix+"\\"+prefix+"_"+websafename
-	outfile = "P:\\Online_Presence\\img\\%s\\%s\\%s_%s" % (categoryfolder, prefix, prefix, websafename)
+	# For debugging in console: 
+	# outfile = "P:\\Online_Presence\\img\\products\\tst\\tst_" +  
+	# os.path.basename(pdb.gimp_image_get_filename(gimp.image_list()[0]))
+	# outfile = "P:\\Online_Presence\\img\\" + categoryfolder + "\\" + prefix + 
+	# "\\" +prefix+"_"+websafename
+	outfile = "P:\\Online_Presence\\img\\%s\\%s\\%s_%s" % (
+		categoryfolder, prefix, prefix, websafename
+	)
 	logging.debug('Outpile path and file is: %s', outfile)
 	
 	saveresults = pdb.file_jpeg_save(
-		#RUN_NONINTERACTIVE, #run-mode
-		image, #input image
-		pdb.gimp_image_flatten(image), #drawable to save
-		outfile, #The name of the file to save the image in
-		outfile, #The name of the file to save the image in
-		float(0.90), #quality
-		float(0), #smoothing
-		1, #optimize
-		1, #progressive
-		"", #comment
-		1, #subsmp
-		1, #baseline
-		0, #restart
-		0); #dct algorithm
+		#RUN_NONINTERACTIVE, # run-mode
+		image, # input image
+		pdb.gimp_image_flatten(image), # drawable to save
+		outfile, # The name of the file to save the image in
+		outfile, # The name of the file to save the image in
+		float(0.90), # quality
+		float(0), # smoothing
+		1, # optimize
+		1, # progressive
+		"", # comment
+		1, # subsmp
+		1, # baseline
+		0, # restart
+		0); # dct algorithm
 		
 	#gprint("Wrote to "+outfile)
 	logging.debug('Save operation returned: %s', saveresults)
@@ -156,7 +167,11 @@ def scaleto(image, drawable, int_targetprefix, AddWatermark) :
 	# the log file should go to the folder that contains this script
 	os.chdir(os.path.dirname(sys.argv[0]))
 	
-	logging.basicConfig(filename='ScaleTo.log', level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s')
+	logging.basicConfig(
+		filename='ScaleTo.log', 
+		level=logging.DEBUG, 
+		format='%(asctime)s %(levelname)s %(message)s'
+	)
 	logging.debug("Scaleto version %s started.", currentversion)
 	
 	# "thm","med","pop","six","gal","trk","trf","fly"
@@ -211,14 +226,21 @@ def scaleto(image, drawable, int_targetprefix, AddWatermark) :
 	#gprint(imgaspect)
 	
 	pdb.gimp_image_undo_group_start(image)
-	if (imgheight>targetheight) or (imgwidth>targetwidth): # we only want to shrink to fit, not enlarge
+	
+	# we only want to shrink to fit, not enlarge:
+	if (imgheight>targetheight) or (imgwidth>targetwidth):
 		if  (imgaspect > targetaspect) :
 			scalefactor = float(imgwidth) / float(targetwidth)
 		else:
 			scalefactor = float(imgheight) / float(targetheight)
 		
 		#gprint("Scaling image...")
-		pdb.gimp_image_scale_full( image, int(round(imgwidth/scalefactor)), int(round(imgheight/scalefactor)), INTERPOLATION_LANCZOS )
+		pdb.gimp_image_scale_full(
+			image, 
+			int(round(imgwidth/scalefactor)), 
+			int(round(imgheight/scalefactor)), 
+			INTERPOLATION_LANCZOS
+		)
 	
 	#thm prefix is a special case, it must be resized exactly to 150x150
 	#this block assumes the working image has only one layer
@@ -244,7 +266,8 @@ def scaleto(image, drawable, int_targetprefix, AddWatermark) :
 	
 	if AddWatermark==TRUE:
 		watermark(image, targetprefix)
-		# There's logic inside watermark() that will avoid watermarking certain target image types (thm, trk, trf.
+		# There's logic inside watermark() that will avoid
+		# watermarking certain target image types (thm, trk, trf).
 	
 	exportfile(targetprefix, image)
 	
@@ -263,11 +286,30 @@ register(
 	"<Image>/MyScripts/ScaleTo", #menupath
 	"*", #imagetypes
 	[
-		(PF_OPTION, "int_targetprefix", "OPTION:", 0, ["thm (Thumbnail)","med (Main store image)","pop (Poplet images)","six (eBay images)","gal (Photo Gallery images)","trk (Truck Thumbnails)","trf (Truck Pictures","fly (Flyer previews)"]),
-		(PF_TOGGLE, "AddWatermark",   "Add Watermark?", 1) # initially True, checked.  Alias PF_BOOL
+		(
+			PF_OPTION, 
+			"int_targetprefix", 
+			"OPTION:", 
+			0, 
+			[
+				"thm (Thumbnail)", 
+				"med (Main store image)", 
+				"pop (Poplet images)", 
+				"six (eBay images)", 
+				"gal (Photo Gallery images)", 
+				"trk (Truck Thumbnails)", 
+				"trf (Truck Pictures", 
+				"fly (Flyer previews)"
+			]
+		), (
+			PF_TOGGLE, 
+			"AddWatermark", 
+			"Add Watermark?", 
+			1 # initially True, checked.  Alias PF_BOOL
+		) 
 	], 
 	[],
 	scaleto
-	)
+)
 
 main()
