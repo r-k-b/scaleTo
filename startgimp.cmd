@@ -2,7 +2,7 @@
 title Push script to Gimp plugins folder, start Gimp
 
 rem We should pause at this point, if Gimp is still open
-echo tasklist | find "gimp" 2>NUL
+echo tasklist | find "gimp" >NUL 2>&1
 rem echo %ERRORLEVEL%
 if "%ERRORLEVEL%"=="1" goto notRunning
 	echo .
