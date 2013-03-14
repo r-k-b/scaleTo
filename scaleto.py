@@ -9,8 +9,10 @@
     Watermark insertion
     Error checking
     Target filename checking
+    Target filename slugification ('groß & heiße' → 'gross and heisse')
     Why does it choke on png/gif/anything other than jpeg?
     Verbose logging
+    Check source image is in good state before modifying (layer mask active? floating selections?)
 --------------------------------------------------------------
 """
 __author__ = "Robert K. Bell"
