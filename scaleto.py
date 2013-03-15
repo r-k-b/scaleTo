@@ -16,10 +16,12 @@
 --------------------------------------------------------------
 """
 __author__ = "Robert K. Bell"
-currentversion = "v072e"
+currentversion = "v073"
 watermarkfolder = "//dubb014/DUBB_GDRIVE/Logos/Inland group/"
 """
 CHANGELOG: 
+v073
+    Allow thumbnails to be badged with ALLRig Rewards decal.
 v072e
     Change indents from tab to spaces, some cody tidying.
 v072
@@ -130,6 +132,9 @@ def watermark(image, targetprefix) :
         watermarkfilename = "ITC_watermark_six.xcf"
     elif targetprefix == "gal":
         watermarkfilename = "ITC_watermark_gal.xcf"
+    elif targetprefix == "thm":
+        watermarkfilename = "ITC_watermark_thm_ARR.xcf" 
+        # Not exactly a watermark, but a badge to show Rewards Discount applies.
     else:
         skipwatermark = True;
         logging.debug('Skipping watermark process.')
