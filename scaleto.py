@@ -16,10 +16,12 @@
 --------------------------------------------------------------
 """
 __author__ = "Robert K. Bell"
-currentversion = "v073"
+currentversion = "v074b"
 watermarkfolder = "//dubb014/DUBB_GDRIVE/Logos/Inland group/"
 """
 CHANGELOG: 
+v074
+    Add dep_ prefix for DealerPro images (192x176).
 v073
     Allow thumbnails to be badged with ALLRig Rewards decal.
 v072e
@@ -70,6 +72,7 @@ def gprint( text ):
 # Export the file to the location given by the prefix
 # Doesn't check 
 def exportfile(prefix, image):
+    # this needs to be changed to a tested 'slug' function
     websafename = (
         os.path.basename(
             pdb.gimp_image_get_filename(image)
@@ -183,12 +186,14 @@ def scaleto(image, drawable, int_targetprefix, AddWatermark) :
     )
     logging.debug("Scaleto version %s started.", currentversion)
     
-    # "thm","med","pop","six","gal","trk","trf","fly"
+    # "thm","med","pop","six","gal","trk","trf","fly","dep"
     # targetprefix = "tst"
+    forceAspectRatio = False
     if int_targetprefix == 0: #thm
         targetwidth = 150
         targetheight = 150
         targetprefix = "thm"
+        forceAspectRatio = True
     elif int_targetprefix == 1: #med
         targetwidth = 430
         targetheight = 600
@@ -217,8 +222,14 @@ def scaleto(image, drawable, int_targetprefix, AddWatermark) :
         targetwidth = 300
         targetheight = 424
         targetprefix = "fly"
+    elif int_targetprefix == 8: #dep
+        targetwidth = 192
+        targetheight = 176
+        targetprefix = "dep"
+        forceAspectRatio = True
     else:
         gprint("int_targetprefix switch broke!")
+        logging.error("int_targetprefix switch broke!")
         
     logging.debug("Scaling image to %sx%s", targetwidth, targetheight)
     
@@ -252,8 +263,9 @@ def scaleto(image, drawable, int_targetprefix, AddWatermark) :
         )
     
     #thm prefix is a special case, it must be resized exactly to 150x150
+    #dep prefix must be resized to 192x176 (or same aspect ratio)
     #this block assumes the working image has only one layer
-    if targetprefix=="thm":
+    if forceAspectRatio:
         logging.debug('Adding fixed size white layer.')
         thumblayer=image.layers[0]
         whitelayer=thumblayer.copy()
@@ -264,13 +276,13 @@ def scaleto(image, drawable, int_targetprefix, AddWatermark) :
         pdb.gimp_drawable_fill(whitelayer, WHITE_FILL)
         #put layer at bottom
         image.lower_layer(whitelayer) 
-        #resize layer to 150x150 (centred on top layer)
-        xoffset,yoffset=0,0
-        if image.width<150:
-            xoffset=int((150-image.width)/2)
-        if image.height<150:
-            yoffset=int((150-image.height)/2)
-        whitelayer.resize(150,150,xoffset,yoffset)
+        #resize layer to targetwidth * targetheight (centred on top layer)
+        xoffset, yoffset = 0, 0
+        if image.width < targetwidth:
+            xoffset=int((targetwidth - image.width) / 2)
+        if image.height < targetheight:
+            yoffset=int((targetheight - image.height) / 2)
+        whitelayer.resize(targetwidth, targetheight, xoffset, yoffset) #
         pdb.gimp_image_resize_to_layers(image)
     
     if AddWatermark==TRUE:
@@ -301,14 +313,15 @@ register(
             "OPTION:", 
             0, 
             [
-                "thm (Thumbnail)", 
-                "med (Main store image)", 
-                "pop (Poplet images)", 
-                "six (eBay images)", 
-                "gal (Photo Gallery images)", 
-                "trk (Truck Thumbnails)", 
-                "trf (Truck Pictures", 
-                "fly (Flyer previews)"
+                "thm (Thumbnail)",              #0
+                "med (Main store image)",       #1
+                "pop (Poplet images)",          #2
+                "six (eBay images)",            #3
+                "gal (Photo Gallery images)",   #4
+                "trk (Truck Thumbnails)",       #5
+                "trf (Truck Pictures",          #6
+                "fly (Flyer previews)",         #7
+                "dep (DealerPro images)"        #8
             ]
         ), (
             PF_TOGGLE, 
@@ -316,6 +329,7 @@ register(
             "Add Watermark?", 
             1 # initially True, checked.  Alias PF_BOOL
         ) 
+        # Output selector should go here?
     ], 
     [],
     scaleto
