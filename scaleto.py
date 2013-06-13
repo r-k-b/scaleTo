@@ -16,7 +16,7 @@
 --------------------------------------------------------------
 """
 __author__ = "Robert K. Bell"
-currentversion = "v075b"
+currentversion = "v075c"
 watermarkfolder = "//dubb014/DUBB_GDRIVE/Logos/Inland group/"
 """
 CHANGELOG: 
@@ -335,7 +335,7 @@ register(
             PF_TOGGLE, 
             "AddWatermark", 
             "Add Watermark?", 
-            1 # initially True, checked.  Alias PF_BOOL
+            0 # initially True, checked.  Alias PF_BOOL
         ) 
         # Output selector should go here?
     ], 
