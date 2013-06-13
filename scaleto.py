@@ -16,12 +16,14 @@
 --------------------------------------------------------------
 """
 __author__ = "Robert K. Bell"
-currentversion = "v074b"
+currentversion = "v075b"
 watermarkfolder = "//dubb014/DUBB_GDRIVE/Logos/Inland group/"
 """
 CHANGELOG: 
+v075
+    Add dpro_ prefix for DealerPro truck images (___x298).
 v074
-    Add dep_ prefix for DealerPro images (192x176).
+    Add dep_ prefix for DealerPro product images (192x176).
 v073
     Allow thumbnails to be badged with ALLRig Rewards decal.
 v072e
@@ -85,7 +87,8 @@ def exportfile(prefix, image):
     websafename = ".".join(websafename.split(".")[:-1]) + ".jpg"
     
     #if (prefix == 5) or (prefix == 6):
-    if (prefix == "trk") or (prefix == "trf"):
+    truckSalesPrefixes = ['trk', 'trf', 'dpro']
+    if prefix in truckSalesPrefixes:
         categoryfolder = "trucksales"
     elif prefix == "fly":
         categoryfolder = "flyers"
@@ -186,7 +189,7 @@ def scaleto(image, drawable, int_targetprefix, AddWatermark) :
     )
     logging.debug("Scaleto version %s started.", currentversion)
     
-    # "thm","med","pop","six","gal","trk","trf","fly","dep"
+    # "thm","med","pop","six","gal","trk","trf","fly","dep","dpro"
     # targetprefix = "tst"
     forceAspectRatio = False
     if int_targetprefix == 0: #thm
@@ -227,6 +230,10 @@ def scaleto(image, drawable, int_targetprefix, AddWatermark) :
         targetheight = 176
         targetprefix = "dep"
         forceAspectRatio = True
+    elif int_targetprefix == 9: #dpro
+        targetwidth = 600
+        targetheight = 298
+        targetprefix = "dpro"
     else:
         gprint("int_targetprefix switch broke!")
         logging.error("int_targetprefix switch broke!")
@@ -313,15 +320,16 @@ register(
             "OPTION:", 
             0, 
             [
-                "thm (Thumbnail)",              #0
-                "med (Main store image)",       #1
-                "pop (Poplet images)",          #2
-                "six (eBay images)",            #3
-                "gal (Photo Gallery images)",   #4
-                "trk (Truck Thumbnails)",       #5
-                "trf (Truck Pictures",          #6
-                "fly (Flyer previews)",         #7
-                "dep (DealerPro images)"        #8
+                "thm (Thumbnail)",               #0
+                "med (Main store image)",        #1
+                "pop (Poplet images)",           #2
+                "six (eBay images)",             #3
+                "gal (Photo Gallery images)",    #4
+                "trk (Truck Thumbnails)",        #5
+                "trf (Truck Pictures",           #6
+                "fly (Flyer previews)",          #7
+                "dep (DealerPro product images)",#8
+                "dpro(DealerPro truck images)"   #9
             ]
         ), (
             PF_TOGGLE, 
