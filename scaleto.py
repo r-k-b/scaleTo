@@ -16,10 +16,12 @@
 --------------------------------------------------------------
 """
 __author__ = "Robert K. Bell"
-currentversion = "v075c"
+currentversion = "v076a"
 watermarkfolder = "//dubb014/DUBB_GDRIVE/Logos/Inland group/"
 """
 CHANGELOG: 
+v076
+    Copy dep_ prefix images to second location for convenience
 v075
     Add dpro_ prefix for DealerPro truck images (___x298).
 v074
@@ -65,6 +67,9 @@ v059
 
 from gimpfu import *
 import os, logging, sys
+
+config = {}
+config['upload_folder'] = '\\\\appserver01\\Private\\dubit6\\Documents\\CfsData'
 
 # create an output function that redirects to gimp's Error Console
 def gprint( text ):
@@ -124,6 +129,34 @@ def exportfile(prefix, image):
     #gprint("Wrote to "+outfile)
     logging.debug('Save operation returned: %s', saveresults)
     
+    if prefix == 'dep':
+        # Optional save to convenience folder
+        full_path = os.path.join(
+            config['upload_folder'], 
+            prefix + '_' + websafename)
+        logging.debug('Outpile path and file is: %s', full_path)
+        try:
+            saveresults = pdb.file_jpeg_save(
+                #RUN_NONINTERACTIVE, # run-mode
+                image, # input image
+                pdb.gimp_image_flatten(image), # drawable to save
+                full_path, # The name of the file to save the image in
+                full_path, # The name of the file to save the image in
+                float(0.90), # quality
+                float(0), # smoothing
+                1, # optimize
+                1, # progressive
+                "", # comment
+                1, # subsmp
+                1, # baseline
+                0, # restart
+                0); # dct algorithm
+        except Exception as e:
+            logging.warning('Save failed, exception follows:')
+            logging.warning(e)
+        finally:
+            logging.debug('Save operation returned: {s}'.format(
+                s = saveresults))
     return
     
 def watermark(image, targetprefix) :
