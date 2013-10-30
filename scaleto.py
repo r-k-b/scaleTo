@@ -13,13 +13,20 @@
     Why does it choke on png/gif/anything other than jpeg?
     Verbose logging
     Check source image is in good state before modifying (layer mask active? floating selections?)
+    Attach to remote debugger
 --------------------------------------------------------------
 """
 __author__ = "Robert K. Bell"
-currentversion = "v076a"
-watermarkfolder = "//dubb014/DUBB_GDRIVE/Logos/Inland group/"
+currentversion = "v077"
+
+config = {}
+config['upload_folder'] = r'\\appserver01\Private\dubit6\Documents\CfsData'
+config['output_folder'] = r'P:\Online_Presence\img'
+config['watermarkfolder'] = "//dubb014/DUBB_GDRIVE/Logos/Inland group/"
 """
 CHANGELOG: 
+v077
+    Add output folder selector
 v076
     Copy dep_ prefix images to second location for convenience
 v075
@@ -68,8 +75,12 @@ v059
 from gimpfu import *
 import os, logging, sys
 
-config = {}
-config['upload_folder'] = '\\\\appserver01\\Private\\dubit6\\Documents\\CfsData'
+# http://stackoverflow.com/questions/16797850/how-can-you-specify-a-default-value-using-a-function-in-a-gimp-python-plugin
+def output_folder_func():
+    try:
+        return config['output_folder']
+    except:
+        return ""
 
 # create an output function that redirects to gimp's Error Console
 def gprint( text ):
@@ -105,7 +116,7 @@ def exportfile(prefix, image):
     # os.path.basename(pdb.gimp_image_get_filename(gimp.image_list()[0]))
     # outfile = "P:\\Online_Presence\\img\\" + categoryfolder + "\\" + prefix + 
     # "\\" +prefix+"_"+websafename
-    outfile = "P:\\Online_Presence\\img\\%s\\%s\\%s_%s" % (
+    outfile = config['output_folder'] + "\\%s\\%s\\%s_%s" % (
         categoryfolder, prefix, prefix, websafename
     )
     logging.debug('Outpile path and file is: %s', outfile)
@@ -179,7 +190,7 @@ def watermark(image, targetprefix) :
         logging.debug('Skipping watermark process.')
     
     if not skipwatermark:
-        watermarkfile = watermarkfolder + watermarkfilename
+        watermarkfile = config['watermarkfolder'] + watermarkfilename
         logging.debug('Watermark file: %s', watermarkfilename)
         try:
             loadedimg, watermarklayerid = pdb.gimp_file_load_layers(image,watermarkfile)
@@ -350,7 +361,7 @@ register(
         (
             PF_OPTION, 
             "int_targetprefix", 
-            "OPTION:", 
+            "Output size:", 
             0, 
             [
                 "thm (Thumbnail)",               #0
@@ -362,15 +373,19 @@ register(
                 "trf (Truck Pictures",           #6
                 "fly (Flyer previews)",          #7
                 "dep (DealerPro product images)",#8
-                "dpro(DealerPro truck images)"   #9
+                "dpro (DealerPro truck images)"  #9
             ]
         ), (
             PF_TOGGLE, 
             "AddWatermark", 
             "Add Watermark?", 
             0 # initially True, checked.  Alias PF_BOOL
-        ) 
-        # Output selector should go here?
+        ), (
+            PF_DIRNAME,
+            "output_folder",
+            "Output folder:",
+            output_folder_func()
+        )
     ], 
     [],
     scaleto
