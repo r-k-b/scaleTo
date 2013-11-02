@@ -4,7 +4,7 @@
 """
  ScaleTo - Python-fu script
  Author: Robert K. Bell
- Licence: ...
+ Licence: Apache License, Version 2.0
  ------------------ To Do -------------------------------------
     Watermark insertion
     Error checking
