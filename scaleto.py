@@ -10,10 +10,13 @@
     Error checking
     Target filename checking
     Target filename slugification ('groß & heiße' → 'gross and heisse')
+    Target folder creation (shouldn't expect users to create subfolders)
+    Optional target filename modification
     Why does it choke on png/gif/anything other than jpeg?
     Verbose logging
     Check source image is in good state before modifying (layer mask active? floating selections?)
     Attach to remote debugger
+    Unit tests
 --------------------------------------------------------------
 """
 __author__ = "Robert K. Bell"
@@ -23,6 +26,9 @@ config = {}
 config['upload_folder'] = r'\\appserver01\Private\dubit6\Documents\CfsData'
 config['output_folder'] = r'P:\Online_Presence\img'
 config['watermarkfolder'] = "//dubb014/DUBB_GDRIVE/Logos/Inland group/"
+config['sitelibs_path'] = r'C:\Python27\lib\site-packages'
+config['debug'] = False
+
 """
 CHANGELOG: 
 v077
@@ -75,6 +81,7 @@ v059
 from gimpfu import *
 import os, logging, sys
 
+
 # http://stackoverflow.com/questions/16797850/how-can-you-specify-a-default-value-using-a-function-in-a-gimp-python-plugin
 def output_folder_func():
     try:
@@ -86,6 +93,16 @@ def output_folder_func():
 def gprint( text ):
     pdb.gimp_message(text)
     return 
+    
+# attempt to attach to winpdb debugger
+# must manually add path (can't do it from GIMP?)
+sys.path.append(config['sitelibs_path'])
+if config['debug']:
+    try:
+        import rpdb2
+        # TODO: attach to debugger
+    except ImportError:
+        gprint("Error: couldn't import rpdb2 from {s}".format(config['sitelibs_path']))
     
 # Export the file to the location given by the prefix
 # Doesn't check 
