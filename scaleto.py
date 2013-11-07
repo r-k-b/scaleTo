@@ -239,7 +239,7 @@ def watermark(image, targetprefix) :
     return
 
 # our script
-def scaleto(image, drawable, int_targetprefix, AddWatermark) :
+def scaleto(image, drawable, int_targetprefix, AddWatermark, output_folder) :
     # the log file should go to the folder that contains this script
     os.chdir(os.path.dirname(sys.argv[0]))
     
