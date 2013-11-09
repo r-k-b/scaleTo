@@ -6,7 +6,7 @@ set pluginpath=C:\Users\VadShaytReth\.gimp-2.8\plug-ins
 rem We should pause at this point, if Gimp is still open
 echo tasklist | find "gimp" >NUL 2>&1
 rem echo %ERRORLEVEL%
-if "%ERRORLEVEL%"=="1" goto notRunning
+if %ERRORLEVEL%=="1" goto notRunning
 	echo .
 	echo You should close Gimp so this works properly...
 	echo (Press a button to ignore and continue...)
