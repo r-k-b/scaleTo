@@ -2,6 +2,7 @@
 title Push script to Gimp plugins folder, start Gimp
 
 set pluginpath=C:\Users\VadShaytReth\.gimp-2.8\plug-ins
+set pluginfile=scaleto.py
 
 rem We should pause at this point, if Gimp is still open
 echo tasklist | find "gimp" >NUL 2>&1
@@ -16,7 +17,7 @@ if %ERRORLEVEL%=="1" goto notRunning
 
 rem Catch any syntax problems (GIMP won't inform us)
 echo Checking for syntax errors...
-python -m py_compile scaleto.py
+python -m py_compile %pluginfile%
 if %ERRORLEVEL%=="1" goto syntaxok
 	echo Caught syntax errors; aborting
 	exit
@@ -24,7 +25,7 @@ if %ERRORLEVEL%=="1" goto syntaxok
 :syntaxok
 
 echo Pushing script...
-copy .\scaleto.py %pluginpath%
+copy .\%pluginfile% %pluginpath%
 
 rem Why did we need to set the 'workdir'?
 rem echo Changing workdir...
