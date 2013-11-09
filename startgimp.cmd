@@ -14,6 +14,15 @@ if "%ERRORLEVEL%"=="1" goto notRunning
 
 :notRunning
 
+rem Catch any syntax problems (GIMP won't inform us)
+echo Checking for syntax errors...
+python -m py_compile scaleto.py
+if %ERRORLEVEL%=="1" goto syntaxok
+	echo Caught syntax errors; aborting
+	exit
+	
+:syntaxok
+
 echo Pushing script...
 copy .\scaleto.py %pluginpath%
 
