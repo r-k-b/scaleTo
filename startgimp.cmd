@@ -41,7 +41,7 @@ start "" "C:\Program Files\GIMP 2\bin\%gimpexe%"
 rem cd "C:\Program Files\GIMP 2\bin\"
 rem gimp-2.8.exe --verbose
 
-pause
+rem pause
 rem Would like to be able to pause if not running from 
 rem the command line...
 
