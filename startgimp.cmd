@@ -3,11 +3,13 @@ title Push script to Gimp plugins folder, start Gimp
 
 set pluginpath=C:\Users\VadShaytReth\.gimp-2.8\plug-ins
 set pluginfile=scaleto.py
+set gimpexe=gimp-2.8.exe
 
 rem We should pause at this point, if Gimp is still open
-echo tasklist | find "gimp" >NUL 2>&1
-rem echo %ERRORLEVEL%
-if %ERRORLEVEL%=="1" goto notRunning
+rem http://stackoverflow.com/a/1329790/2014893
+tasklist /FI "IMAGENAME eq %gimpexe%" 2>NUL | find /I /N "%gimpexe%">NUL
+rem echo ERRORLEVEL: %ERRORLEVEL%
+if %ERRORLEVEL%==1 goto notRunning
 	echo .
 	echo You should close Gimp so this works properly...
 	echo (Press a button to ignore and continue...)
@@ -18,8 +20,10 @@ if %ERRORLEVEL%=="1" goto notRunning
 rem Catch any syntax problems (GIMP won't inform us)
 echo Checking for syntax errors...
 python -m py_compile %pluginfile%
-if %ERRORLEVEL%=="1" goto syntaxok
+rem echo ERRORLEVEL: %ERRORLEVEL%
+if %ERRORLEVEL%==0 goto syntaxok
 	echo Caught syntax errors; aborting
+	pause
 	exit
 	
 :syntaxok
