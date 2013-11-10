@@ -81,6 +81,11 @@ v059
 from gimpfu import *
 import os, logging, sys
 
+# winpdb isn't on the GIMP Python paths
+# this will likely break things if the Python versions get too far apart
+sys.path.append('C:\\Python27\\lib\\site-packages')
+import rpdb2
+rpdb2.start_embedded_debugger('aaa')
 
 # http://stackoverflow.com/questions/16797850/how-can-you-specify-a-default-value-using-a-function-in-a-gimp-python-plugin
 def output_folder_func():
