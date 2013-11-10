@@ -36,7 +36,7 @@ rem echo Changing workdir...
 rem cd C:\Users\RKB\
 
 echo Starting Gimp...
-start "" "C:\Program Files\GIMP 2\bin\gimp-2.8.exe"
+start "" "C:\Program Files\GIMP 2\bin\%gimpexe%"
 
 rem cd "C:\Program Files\GIMP 2\bin\"
 rem gimp-2.8.exe --verbose
